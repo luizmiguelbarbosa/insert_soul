@@ -29,7 +29,7 @@ O projeto segue boas práticas de engenharia de software, com separação de res
 
 
 ## 📂 Estrutura do Projeto
-
+````
 CMakeLists.txt
 README.md
 assets/
@@ -78,9 +78,9 @@ source/
                 dialogues/
                     triggers/
 
-## Descrição das Pastas e Arquivos
+````
 
-## 🔹 Descrição das Pastas e Arquivos
+## Descrição das Pastas e Arquivos
 
 **assets/**: Contém todos os recursos do jogo: sprites, sons, fontes, shaders e scripts Lua.  
 - **arcades/**: Recursos gráficos de minijogos ou arcades internos.  
