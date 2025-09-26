@@ -1,4 +1,4 @@
-# NOME DO JOGO
+# INSERT SOUL
 
 Este é um projeto de jogo 2D desenvolvido em C, utilizando a biblioteca **Raylib**.  
 O jogo é modular, com engine própria, sistema de input, áudio, renderização, física e scripts para cutscenes.  
