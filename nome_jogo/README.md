@@ -1,4 +1,4 @@
-# NOME DO JOGO
+# INSERT SOUL
 
 Este é um projeto de jogo 2D desenvolvido em C, utilizando a biblioteca **Raylib**.  
 O jogo é modular, com engine própria, sistema de input, áudio, renderização, física e scripts para cutscenes.  
@@ -19,17 +19,11 @@ O projeto segue boas práticas de engenharia de software, com separação de res
 
 ## ⚙️ Instalação e Execução
 
-1. Certifique-se de ter **CMake** e um compilador C instalado.  
-2. Clone o repositório:
-
-
-        git clone https://github.com/seu_usuario/nome_do_projeto.git
-        cd nome_do_projeto
-
+// FALTA AQUI
 
 
 ## 📂 Estrutura do Projeto
-
+````
 CMakeLists.txt
 README.md
 assets/
@@ -78,9 +72,9 @@ source/
                 dialogues/
                     triggers/
 
-## Descrição das Pastas e Arquivos
+````
 
-## 🔹 Descrição das Pastas e Arquivos
+## Descrição das Pastas e Arquivos
 
 **assets/**: Contém todos os recursos do jogo: sprites, sons, fontes, shaders e scripts Lua.  
 - **arcades/**: Recursos gráficos de minijogos ou arcades internos.  
