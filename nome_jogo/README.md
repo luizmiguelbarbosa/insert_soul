@@ -19,13 +19,7 @@ O projeto segue boas práticas de engenharia de software, com separação de res
 
 ## ⚙️ Instalação e Execução
 
-1. Certifique-se de ter **CMake** e um compilador C instalado.  
-2. Clone o repositório:
-
-
-        git clone https://github.com/seu_usuario/nome_do_projeto.git
-        cd nome_do_projeto
-
+// FALTA AQUI
 
 
 ## 📂 Estrutura do Projeto
