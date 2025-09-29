@@ -1,3 +1,17 @@
 {
-    "cmake.sourceDirectory": "C:/Users/rsm7/Documents/insert_soul/nome_jogo"
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/*.o": true,
+    "**/*.exe": true
+  },
+  "files.associations": {
+    "windows.h": "c",
+    "raylib.h": "c",
+    "system_config.h": "c"
+  },
+  "cmake.sourceDirectory": "C:/Users/rsm7/Documents/insert_soul/nome_jogo"
 }
