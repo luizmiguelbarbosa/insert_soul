@@ -13,15 +13,12 @@ int main(void)
     // Initialization
     //--------------------------------------------------------------------------------------
  
-    
-    
-    
     const int screenWidth = 800;
     const int screenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+    InitWindow(screenWidth, screenHeight, "Insert Your Soul");
 
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
+    SetTargetFPS(60);               // Set our game to run at 60 FPS
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -38,7 +35,7 @@ int main(void)
 
             ClearBackground(RAYWHITE);
 
-            DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+            DrawText("Vamos começar a programar o jogo pessoal!", 190, 200, 20, LIGHTGRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------
