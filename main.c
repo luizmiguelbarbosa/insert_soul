@@ -1,50 +1,32 @@
+#include "./include/raylib.h"
+#include "./include/system_config.h"
 
-/*
-********************************************************************************************/
+int main(void) {
+    // Detecta a resolução do monitor
+    int width, height;
+    getScreenResolution(&width, &height);
 
-#include "include/raylib.h"
+    // Detecta a linguagem do sistema
+    char language[16];
+    getSystemLanguage(language, sizeof(language));
 
+    // Inicializa a janela
+    InitWindow(width, height, "Insert Your Soul");
 
-//------------------------------------------------------------------------------------
-// Program main entry point
-//------------------------------------------------------------------------------------
-int main(void)
-{
-    // Initialization
-    //--------------------------------------------------------------------------------------
- 
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+    // Force fullscreen sem bordas (esconde barra de tarefas)
+    SetWindowState(FLAG_WINDOW_UNDECORATED | FLAG_FULLSCREEN_MODE);
 
-    InitWindow(screenWidth, screenHeight, "Insert Your Soul");
+    SetTargetFPS(60);
 
-    SetTargetFPS(60);               // Set our game to run at 60 FPS
-    //--------------------------------------------------------------------------------------
-
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
-        // Update
-        //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
-        //----------------------------------------------------------------------------------
-
-        // Draw
-        //----------------------------------------------------------------------------------
+    while (!WindowShouldClose()) {
         BeginDrawing();
+        ClearBackground(RAYWHITE);
 
-            ClearBackground(RAYWHITE);
-
-            DrawText("Vamos começar a programar o jogo pessoal!", 190, 200, 20, LIGHTGRAY);
+        DrawText(TextFormat("Res: %dx%d, Lang: %s", width, height, language), 50, 50, 20, LIGHTGRAY);
 
         EndDrawing();
-        //----------------------------------------------------------------------------------
     }
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
+    CloseWindow();
     return 0;
 }
