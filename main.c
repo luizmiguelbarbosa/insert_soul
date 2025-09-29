@@ -20,7 +20,7 @@ int main(void) {
 
     while (!WindowShouldClose()) {
         BeginDrawing();
-        ClearBackground(RAYWHITE);
+        ClearBackgrogitund(RAYWHITE);
 
         DrawText(TextFormat("Res: %dx%d, Lang: %s", width, height, language), 50, 50, 20, LIGHTGRAY);
 
