@@ -10,11 +10,13 @@ int main(void) {
     char language[16];
     getSystemLanguage(language, sizeof(language));
 
-    // Inicializa a janela
     InitWindow(width, height, "Insert Your Soul");
 
-    // Force fullscreen sem bordas (esconde barra de tarefas)
-    SetWindowState(FLAG_WINDOW_UNDECORATED | FLAG_FULLSCREEN_MODE);
+    // Remove maximizado, usa tamanho exato e sem bordas
+    SetWindowState(FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_ALWAYS_RUN);
+
+    SetWindowSize(width, height);
+    SetWindowPosition(0, 0);
 
     SetTargetFPS(60);
 
