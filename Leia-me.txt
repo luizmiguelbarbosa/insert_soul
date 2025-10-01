@@ -5,6 +5,7 @@
 
 gcc main.c intro.c system.c  menu.c transition.c video_player.c system_config.c icon.o -o "Insert Your Soul.exe" -O1 -Wall -std=c99 -Wno-missing-braces -I include/ -L lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
 
+
 # For Linux
 
 gcc main.c system_config.c -o insert_your_soul -O1 -Wall -std=c99 \
