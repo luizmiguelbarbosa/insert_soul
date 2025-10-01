@@ -11,11 +11,14 @@ int main(void) {
     char language[16];
     getSystemLanguage(language, sizeof(language));
 
-    // Cria a janela primeiro
+    // Cria a janela
     InitWindow(width, height, "Insert Your Soul");
     SetWindowState(FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_ALWAYS_RUN);
     SetWindowSize(width, height);
     SetWindowPosition(0, 0);
+
+    // Desabilita ESC como tecla de saída
+    SetExitKey(KEY_NULL);
 
     SetTargetFPS(60);
 
@@ -55,8 +58,8 @@ int main(void) {
         EndDrawing();
     }
 
-    // Mantém o último frame até apertar ESC
-    while (!WindowShouldClose() && !IsKeyPressed(KEY_ESCAPE)) {
+    // Mantém o último frame até fechar pelo menu ou Alt+F4
+    while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(BLACK);
 
