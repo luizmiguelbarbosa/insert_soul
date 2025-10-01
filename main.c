@@ -1,75 +1,41 @@
-#include "./include/raylib.h"
-#include "./include/system_config.h"
-#include "./include/video_player.h"
+#include "include/raylib.h"
+#include "include/system.h"
+#include "include/video_player.h"
+#include "include/intro.h"
+#include "include/menu.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 int main(void) {
     int width, height;
-    getScreenResolution(&width, &height);
 
-    char language[16];
-    getSystemLanguage(language, sizeof(language));
-
-    // Cria a janela
-    InitWindow(width, height, "Insert Your Soul");
-    SetWindowState(FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_ALWAYS_RUN);
-    SetWindowSize(width, height);
-    SetWindowPosition(0, 0);
-
-    // Desabilita ESC como tecla de saída
-    SetExitKey(KEY_NULL);
-
-    SetTargetFPS(60);
-
-    // Desenha tela preta imediatamente para evitar tela branca
-    BeginDrawing();
-    ClearBackground(BLACK);
-    EndDrawing();
+    System_Init("Insert Your Soul", &width, &height);
+    HideCursor();
 
     VideoPlayer vp;
-    if (!VideoPlayer_Init(&vp, "assets/frames/intro/frame_%04d.png", 120, 24.0f, NULL)) {
-        printf("Erro ao inicializar VideoPlayer! Verifique os arquivos.\n");
-        CloseWindow();
+    if (!Intro_Play(&vp, width, height,
+                    "assets/frames/intro/frame_%04d.png", 
+                    120, 24.0f, "assets/audio/intro_audio.wav", 0.002f)) {
+        System_Close();
         return -1;
     }
 
-    float fadeAlpha = 0.0f;
-    const float fadeSpeed = 0.01f;
+    // --- MENU ---
+    Menu_Init(width, height);
+    bool exitProgram = false;
 
-    // Loop principal com fade in
-    while (!WindowShouldClose() && !VideoPlayer_IsFinished(&vp)) {
-        float delta = GetFrameTime();
-        VideoPlayer_Update(&vp, delta);
+    while (!WindowShouldClose() && !exitProgram) {
+        MenuAction action = Menu_UpdateDraw();
 
-        BeginDrawing();
-        ClearBackground(BLACK);
-
-        // Desenha o vídeo
-        VideoPlayer_Draw(&vp, 0, 0, width, height);
-
-        // Fade in
-        if (fadeAlpha < 1.0f) {
-            fadeAlpha += fadeSpeed;
-            if (fadeAlpha > 1.0f) fadeAlpha = 1.0f;
-            DrawRectangle(0, 0, width, height, (Color){0, 0, 0, (unsigned char)((1.0f - fadeAlpha) * 255)});
+        switch (action) {
+            case MENU_ACTION_START:   printf("Iniciar jogo clicado!\n"); break;
+            case MENU_ACTION_OPTIONS: printf("Opções clicado!\n"); break;
+            case MENU_ACTION_EXIT:    exitProgram = true; break;
+            default: break;
         }
-
-        EndDrawing();
     }
 
-    // Mantém o último frame até fechar pelo menu ou Alt+F4
-    while (!WindowShouldClose()) {
-        BeginDrawing();
-        ClearBackground(BLACK);
-
-        VideoPlayer_Draw(&vp, 0, 0, width, height);
-
-        EndDrawing();
-    }
-
-    VideoPlayer_Unload(&vp);
-    CloseWindow();
-
+    Menu_Unload();
+    System_Close();
     return 0;
 }

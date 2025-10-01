@@ -2,6 +2,7 @@
 #define VIDEO_PLAYER_H
 
 #include "raylib.h"
+#include <stdbool.h>
 
 typedef struct VideoPlayer {
     Texture2D *frames;       // array de frames (texturas)
@@ -11,16 +12,17 @@ typedef struct VideoPlayer {
     float timer;             // contador de tempo para avançar frame
 
     Music music;             // áudio
+
+    // Novos campos para delay do áudio
+    float audioDelay;        // tempo de espera antes de tocar áudio
+    bool audioPlayed;        // se o áudio já começou
 } VideoPlayer;
 
 // Inicializa o player, carregando frames do diretório e o áudio
-bool VideoPlayer_Init(VideoPlayer *vp, const char *framesPathFormat, int frameCount, float fps, const char *audioPath);
+bool VideoPlayer_Init(VideoPlayer *vp, const char *framesPathFormat, int frameCount, float fps, const char *audioPath, float audioDelay);
 
 // Atualiza (baseado no delta time)
 void VideoPlayer_Update(VideoPlayer *vp, float delta);
-
-// Atualiza sincronizando diretamente pelo áudio
-void VideoPlayer_UpdateSync(VideoPlayer *vp);
 
 // Renderiza o frame atual na tela (pos, width, height)
 void VideoPlayer_Draw(VideoPlayer *vp, int x, int y, int width, int height);

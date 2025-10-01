@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-bool VideoPlayer_Init(VideoPlayer *vp, const char *framesPathFormat, int frameCount, float fps, const char *audioPath) {
+bool VideoPlayer_Init(VideoPlayer *vp, const char *framesPathFormat, int frameCount, float fps, const char *audioPath, float audioDelay) {
     vp->frames = (Texture2D *)malloc(sizeof(Texture2D) * frameCount);
     if (!vp->frames) return false;
 
@@ -10,6 +10,10 @@ bool VideoPlayer_Init(VideoPlayer *vp, const char *framesPathFormat, int frameCo
     vp->currentFrame = 0;
     vp->frameTime = 1.0f / fps;
     vp->timer = 0.0f;
+
+    // Delay do áudio
+    vp->audioDelay = audioDelay;
+    vp->audioPlayed = false;
 
     // Carregar frames
     for (int i = 0; i < frameCount; i++) {
@@ -28,18 +32,19 @@ bool VideoPlayer_Init(VideoPlayer *vp, const char *framesPathFormat, int frameCo
         UnloadImage(img);
     }
 
-    // Inicializa áudio apenas se o caminho não for NULL
+    // Inicializa áudio mas não toca imediatamente
     if (audioPath != NULL) {
         vp->music = LoadMusicStream(audioPath);
-        PlayMusicStream(vp->music);
     } else {
         vp->music = (Music){0};
+        vp->audioPlayed = true; // sem áudio, considera "já tocado"
     }
 
     return true;
 }
 
 void VideoPlayer_Update(VideoPlayer *vp, float delta) {
+    // Atualiza timer dos frames
     vp->timer += delta;
     while (vp->timer >= vp->frameTime) {
         vp->currentFrame++;
@@ -48,7 +53,19 @@ void VideoPlayer_Update(VideoPlayer *vp, float delta) {
     if (vp->currentFrame >= vp->frameCount) {
         vp->currentFrame = vp->frameCount - 1; // congela no último frame
     }
-    UpdateMusicStream(vp->music);
+
+    // Atualiza áudio com delay
+    if (!vp->audioPlayed) {
+        vp->audioDelay -= delta;
+        if (vp->audioDelay <= 0.0f) {
+            PlayMusicStream(vp->music);
+            vp->audioPlayed = true;
+        }
+    }
+
+    if (vp->audioPlayed) {
+        UpdateMusicStream(vp->music);
+    }
 }
 
 void VideoPlayer_Draw(VideoPlayer *vp, int x, int y, int width, int height) {
@@ -78,10 +95,12 @@ void VideoPlayer_Unload(VideoPlayer *vp) {
     }
     free(vp->frames);
 
-    StopMusicStream(vp->music);
+    if (vp->audioPlayed) {
+        StopMusicStream(vp->music);
+    }
     UnloadMusicStream(vp->music);
 }
 
 bool VideoPlayer_IsFinished(VideoPlayer *vp) {
-    return (vp->currentFrame >= vp->frameCount - 1) && !IsMusicStreamPlaying(vp->music);
+    return (vp->currentFrame >= vp->frameCount - 1);
 }
