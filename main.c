@@ -10,6 +10,7 @@ int main(void) {
     int width, height;
 
     System_Init("Insert Your Soul", &width, &height);
+    HideCursor();
 
     VideoPlayer vp;
     if (!Intro_Play(&vp, width, height,

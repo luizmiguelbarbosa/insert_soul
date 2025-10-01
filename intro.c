@@ -7,12 +7,13 @@ bool Intro_Play(VideoPlayer *vp, int width, int height, const char *framesPath, 
         printf("Erro ao inicializar VideoPlayer! Verifique os arquivos.\n");
         return false;
     }
+    HideCursor();
 
     float fadeAlpha = 0.0f;
     const float fadeSpeed = 0.01f;
     bool isIntroPlaying = true;
 
-    HideCursor();
+    
 
     while (!WindowShouldClose() && isIntroPlaying) {
         float delta = GetFrameTime();
