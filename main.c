@@ -15,7 +15,7 @@ int main(void) {
     VideoPlayer vp;
     if (!Intro_Play(&vp, width, height,
                     "assets/frames/intro/frame_%04d.png", 
-                    120, 24.0f, "assets/audio/intro_audio.wav", 0.002f)) {
+                    743, 60.0f, "assets/audio/intro_audio.wav", 0.002f)) {
         System_Close();
         return -1;
     }
