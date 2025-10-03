@@ -7,39 +7,38 @@
 static Texture2D buffer[BUFFER_SIZE];
 static char **framePaths;
 
-bool VideoPlayer_Init(VideoPlayer *vp, const char *framesPathFormat, int frameCount, float fps, const char *audioPath, float audioDelay) {
+bool VideoPlayer_Init(VideoPlayer *vp, const char *framesPathFormat, int frameCount, float fps, const char *audioPath) {
     vp->frameCount = frameCount;
     vp->currentFrame = 0;
     vp->frameTime = 1.0f / fps;
     vp->timer = 0.0f;
-    vp->audioDelay = audioDelay;
     vp->audioPlayed = false;
 
-    // Aloca caminhos
+    // Aloca caminhos para todos os frames
     framePaths = (char**)malloc(sizeof(char*) * frameCount);
     for (int i = 0; i < frameCount; i++) {
         framePaths[i] = (char*)malloc(256);
         sprintf(framePaths[i], framesPathFormat, i + 1);
     }
 
-    // Carrega apenas o primeiro frame
-    Image img = LoadImage(framePaths[0]);
-    if (!img.data) {
-        printf("Erro ao carregar frame %s\n", framePaths[0]);
-        return false;
+    // Pré-carrega os primeiros frames no buffer
+    for (int i = 0; i < BUFFER_SIZE && i < frameCount; i++) {
+        Image img = LoadImage(framePaths[i]);
+        if (!img.data) {
+            printf("Erro ao carregar frame %s\n", framePaths[i]);
+            return false;
+        }
+        buffer[i] = LoadTextureFromImage(img);
+        UnloadImage(img);
     }
-    buffer[0] = LoadTextureFromImage(img);
-    UnloadImage(img);
 
-    // Zera os outros do buffer
-    for (int i = 1; i < BUFFER_SIZE; i++) buffer[i] = (Texture2D){0};
+    // Inicializa espaços restantes do buffer
+    for (int i = BUFFER_SIZE; i < BUFFER_SIZE; i++) buffer[i] = (Texture2D){0};
 
-    // Inicializa áudio
+    // Carrega áudio, se houver
     if (audioPath != NULL) {
         vp->music = LoadMusicStream(audioPath);
-    } else {
-        vp->music = (Music){0};
-        vp->audioPlayed = true;
+        vp->audioPlayed = false;
     }
 
     return true;
@@ -48,38 +47,37 @@ bool VideoPlayer_Init(VideoPlayer *vp, const char *framesPathFormat, int frameCo
 void VideoPlayer_Update(VideoPlayer *vp, float delta) {
     vp->timer += delta;
 
-    // Áudio
-    if (!vp->audioPlayed) {
-        vp->audioDelay -= delta;
-        if (vp->audioDelay <= 0.0f) {
-            PlayMusicStream(vp->music);
-            vp->audioPlayed = true;
-        }
+    // Inicia o áudio apenas uma vez
+    if (!vp->audioPlayed && vp->music.ctxData != NULL) {
+        PlayMusicStream(vp->music);
+        vp->audioPlayed = true;
     }
-    if (vp->audioPlayed) UpdateMusicStream(vp->music);
 
-    // Frames
+    // Atualiza áudio se ainda tocando e vídeo não acabou
+    if (vp->audioPlayed && vp->currentFrame < vp->frameCount) {
+        UpdateMusicStream(vp->music);
+    }
+
+    // Avança frames
     while (vp->timer >= vp->frameTime) {
         vp->timer -= vp->frameTime;
 
         int oldIndex = vp->currentFrame % BUFFER_SIZE;
         vp->currentFrame++;
 
-        // Descarrega frame antigo
-        if (vp->currentFrame > 0 && vp->currentFrame - 1 < vp->frameCount) {
-            UnloadTexture(buffer[oldIndex]);
-        }
-
-        // Carrega próximo frame se existir
+        // Pré-carrega próximo frame
         int nextFrame = vp->currentFrame + BUFFER_SIZE - 1;
         if (nextFrame < vp->frameCount) {
             Image img = LoadImage(framePaths[nextFrame]);
-            if (!img.data) {
-                printf("Erro ao carregar frame %s\n", framePaths[nextFrame]);
-                continue;
-            }
+            if (!img.data) continue;
+            if (buffer[oldIndex].id != 0) UnloadTexture(buffer[oldIndex]);
             buffer[oldIndex] = LoadTextureFromImage(img);
             UnloadImage(img);
+        }
+
+        // Para áudio no último frame
+        if (vp->currentFrame >= vp->frameCount && vp->audioPlayed) {
+            StopMusicStream(vp->music);
         }
     }
 }
@@ -118,5 +116,6 @@ void VideoPlayer_Unload(VideoPlayer *vp) {
 }
 
 bool VideoPlayer_IsFinished(VideoPlayer *vp) {
-    return (vp->currentFrame >= vp->frameCount - 1 && (!vp->audioPlayed || !IsMusicStreamPlaying(vp->music)));
+    // Termina quando último frame foi mostrado
+    return vp->currentFrame >= vp->frameCount;
 }

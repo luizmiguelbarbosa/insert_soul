@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+// O módulo está incompleto( fase de teste)
 #define DISSOLVE_MAP_SIZE 256
 
 // Função para criar um mapa aleatório para dissolve

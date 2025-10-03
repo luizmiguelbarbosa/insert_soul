@@ -1,23 +1,12 @@
-#include "include/intro.h"
-#include "include/raylib.h"
+#include "intro.h"
+#include <math.h>
 
-bool Intro_Play(VideoPlayer *vp, int width, int height, const char *framesPath, int frameCount, float fps, const char *audioPath, float audioDelay) {
-    if (!VideoPlayer_Init(vp, framesPath, frameCount, fps, audioPath, audioDelay)) {
-        printf("Erro ao inicializar VideoPlayer!\n");
-        return false;
-    }
+bool Intro_Play(VideoPlayer *vp, int width, int height, const char *framesPath, int frameCount, float fps, const char *audioPath, float loadingTime) {
+    if (!VideoPlayer_Init(vp, framesPath, frameCount, fps, audioPath)) return false;
 
     HideCursor();
 
-    // Desenha primeiro frame antes do loop para evitar travamento
-    BeginDrawing();
-    ClearBackground(BLACK);
-    VideoPlayer_Draw(vp, 0, 0, width, height);
-    EndDrawing();
-
-    float fadeAlpha = 0.0f;
-    const float fadeSpeed = 0.01f;
-
+    // Loop do vídeo
     while (!WindowShouldClose() && !VideoPlayer_IsFinished(vp)) {
         float delta = GetFrameTime();
         VideoPlayer_Update(vp, delta);
@@ -25,11 +14,33 @@ bool Intro_Play(VideoPlayer *vp, int width, int height, const char *framesPath, 
         BeginDrawing();
         ClearBackground(BLACK);
         VideoPlayer_Draw(vp, 0, 0, width, height);
+        EndDrawing();
+    }
 
-        if (fadeAlpha < 1.0f) {
-            fadeAlpha += fadeSpeed;
-            if (fadeAlpha > 1.0f) fadeAlpha = 1.0f;
-            DrawRectangle(0,0,width,height,(Color){0,0,0,(unsigned char)((1.0f-fadeAlpha)*255)});
+    // Tela de carregamento com círculo girando no canto inferior direito
+    float timer = 1.5f;
+    float angle = 0.0f;
+    int radius = 25;
+    int numDots = 12;
+    float speed = 360.0f;
+
+    int centerX = width - 50;
+    int centerY = height - 50;
+
+    while (!WindowShouldClose() && timer < loadingTime) {
+        float delta = GetFrameTime();
+        timer += delta;
+        angle += speed * delta;
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        for (int i = 0; i < numDots; i++) {
+            float a = angle + i * (360.0f / numDots);
+            float rad = a * (3.1415926f / 180.0f);
+            int dotX = centerX + (int)(radius * cos(rad));
+            int dotY = centerY + (int)(radius * sin(rad));
+            DrawCircle(dotX, dotY, 4, WHITE);
         }
 
         EndDrawing();

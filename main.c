@@ -1,26 +1,24 @@
-#include "include/raylib.h"
-#include "include/system.h"
-#include "include/video_player.h"
-#include "include/intro.h"
-#include "include/menu.h"
+#include "raylib.h"
+#include "system.h"
+#include "video_player.h"
+#include "intro.h"
+#include "menu.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 int main(void) {
     int width, height;
-
     System_Init("Insert Your Soul", &width, &height);
     HideCursor();
 
     VideoPlayer vp;
     if (!Intro_Play(&vp, width, height,
-                    "assets/frames/intro/frame_%04d.png", 
-                    743, 60.0f, "assets/audio/intro_audio.wav", 0.002f)) {
+                    "assets/frames/intro/frame_%04d.png",
+                    981, 60.0f, "assets/audio/intro_audio.wav", 3.0f)) {
         System_Close();
         return -1;
     }
 
-    // --- MENU ---
     Menu_Init(width, height);
     bool exitProgram = false;
 

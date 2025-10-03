@@ -5,18 +5,17 @@
 #include <stdbool.h>
 
 typedef struct VideoPlayer {
-    int frameCount;          // total de frames
-    int currentFrame;        // índice do frame atual
-    float frameTime;         // tempo entre frames (ex: 1/24 para 24 fps)
-    float timer;             // contador de tempo para avançar frame
+    int frameCount;
+    int currentFrame;
+    float frameTime;
+    float timer;
 
-    Music music;             // áudio
-    float audioDelay;        // delay antes do áudio
-    bool audioPlayed;        // se áudio já começou
+    Music music;
+    bool audioPlayed;
 } VideoPlayer;
 
-// Inicializa player (buffer de 4 frames)
-bool VideoPlayer_Init(VideoPlayer *vp, const char *framesPathFormat, int frameCount, float fps, const char *audioPath, float audioDelay);
+// Inicializa player (pré-carrega frames e áudio)
+bool VideoPlayer_Init(VideoPlayer *vp, const char *framesPathFormat, int frameCount, float fps, const char *audioPath);
 
 // Atualiza player (frames + áudio)
 void VideoPlayer_Update(VideoPlayer *vp, float delta);
