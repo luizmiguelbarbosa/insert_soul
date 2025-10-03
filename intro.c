@@ -18,16 +18,20 @@ bool Intro_Play(VideoPlayer *vp, int width, int height, const char *framesPath, 
     }
 
     // Tela de carregamento com círculo girando no canto inferior direito
-    float timer = 1.5f;
+    float timer = 0.0f;          // Começa em zero
     float angle = 0.0f;
-    int radius = 25;
-    int numDots = 12;
+    int radius = 20;              // Aumenta o tamanho do círculo
+    int numDots = 8;             // Mantém a proporção
     float speed = 360.0f;
+    float dotSize = radius * 0.25f; // Ponto proporcional ao raio
 
-    int centerX = width - 50;
-    int centerY = height - 50;
+    int centerX = width - 80;
+    int centerY = height - 80;
 
-    while (!WindowShouldClose() && timer < loadingTime) {
+    // Aumenta o tempo de carregamento
+    float targetTime = loadingTime + 3.0f; // por exemplo, 3s a mais
+
+    while (!WindowShouldClose() && timer < targetTime) {
         float delta = GetFrameTime();
         timer += delta;
         angle += speed * delta;
@@ -40,7 +44,7 @@ bool Intro_Play(VideoPlayer *vp, int width, int height, const char *framesPath, 
             float rad = a * (3.1415926f / 180.0f);
             int dotX = centerX + (int)(radius * cos(rad));
             int dotY = centerY + (int)(radius * sin(rad));
-            DrawCircle(dotX, dotY, 4, WHITE);
+            DrawCircle(dotX, dotY, dotSize, WHITE);
         }
 
         EndDrawing();
