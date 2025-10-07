@@ -13,5 +13,5 @@
     "raylib.h": "c",
     "system_config.h": "c"
   },
-  "cmake.sourceDirectory": "C:/Users/rsm7/Documents/insert_soul/nome_jogo"
+  "cmake.sourceDirectory": "C:/Users/rsm7/Documents/insert_soul/raylib"
 }

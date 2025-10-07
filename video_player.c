@@ -1,79 +1,93 @@
-#include "include/video_player.h"
+#include "video_player.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-bool VideoPlayer_Init(VideoPlayer *vp, const char *framesPathFormat, int frameCount, float fps, const char *audioPath, float audioDelay) {
-    vp->frames = (Texture2D *)malloc(sizeof(Texture2D) * frameCount);
-    if (!vp->frames) return false;
+#define BUFFER_SIZE 4
 
+static Texture2D buffer[BUFFER_SIZE];
+static char **framePaths;
+
+bool VideoPlayer_Init(VideoPlayer *vp, const char *framesPathFormat, int frameCount, float fps, const char *audioPath) {
     vp->frameCount = frameCount;
     vp->currentFrame = 0;
     vp->frameTime = 1.0f / fps;
     vp->timer = 0.0f;
-
-    // Delay do áudio
-    vp->audioDelay = audioDelay;
     vp->audioPlayed = false;
 
-    // Carregar frames
+    // Aloca caminhos para todos os frames
+    framePaths = (char**)malloc(sizeof(char*) * frameCount);
     for (int i = 0; i < frameCount; i++) {
-        char filename[256];
-        sprintf(filename, framesPathFormat, i + 1);  // assume nomes frame_0001.png etc
-        Image img = LoadImage(filename);
-        if (img.data == NULL) {
-            printf("Erro ao carregar frame %s\n", filename);
-            for (int j = 0; j < i; j++) {
-                UnloadTexture(vp->frames[j]);
-            }
-            free(vp->frames);
+        framePaths[i] = (char*)malloc(256);
+        sprintf(framePaths[i], framesPathFormat, i + 1);
+    }
+
+    // Pré-carrega os primeiros frames no buffer
+    for (int i = 0; i < BUFFER_SIZE && i < frameCount; i++) {
+        Image img = LoadImage(framePaths[i]);
+        if (!img.data) {
+            printf("Erro ao carregar frame %s\n", framePaths[i]);
             return false;
         }
-        vp->frames[i] = LoadTextureFromImage(img);
+        buffer[i] = LoadTextureFromImage(img);
         UnloadImage(img);
     }
 
-    // Inicializa áudio mas não toca imediatamente
+    // Inicializa espaços restantes do buffer
+    for (int i = BUFFER_SIZE; i < BUFFER_SIZE; i++) buffer[i] = (Texture2D){0};
+
+    // Carrega áudio, se houver
     if (audioPath != NULL) {
         vp->music = LoadMusicStream(audioPath);
-    } else {
-        vp->music = (Music){0};
-        vp->audioPlayed = true; // sem áudio, considera "já tocado"
+        vp->audioPlayed = false;
     }
 
     return true;
 }
 
 void VideoPlayer_Update(VideoPlayer *vp, float delta) {
-    // Atualiza timer dos frames
     vp->timer += delta;
-    while (vp->timer >= vp->frameTime) {
-        vp->currentFrame++;
-        vp->timer -= vp->frameTime;
-    }
-    if (vp->currentFrame >= vp->frameCount) {
-        vp->currentFrame = vp->frameCount - 1; // congela no último frame
+
+    // Inicia o áudio apenas uma vez
+    if (!vp->audioPlayed && vp->music.ctxData != NULL) {
+        PlayMusicStream(vp->music);
+        vp->audioPlayed = true;
     }
 
-    // Atualiza áudio com delay
-    if (!vp->audioPlayed) {
-        vp->audioDelay -= delta;
-        if (vp->audioDelay <= 0.0f) {
-            PlayMusicStream(vp->music);
-            vp->audioPlayed = true;
-        }
-    }
-
-    if (vp->audioPlayed) {
+    // Atualiza áudio se ainda tocando e vídeo não acabou
+    if (vp->audioPlayed && vp->currentFrame < vp->frameCount) {
         UpdateMusicStream(vp->music);
+    }
+
+    // Avança frames
+    while (vp->timer >= vp->frameTime) {
+        vp->timer -= vp->frameTime;
+
+        int oldIndex = vp->currentFrame % BUFFER_SIZE;
+        vp->currentFrame++;
+
+        // Pré-carrega próximo frame
+        int nextFrame = vp->currentFrame + BUFFER_SIZE - 1;
+        if (nextFrame < vp->frameCount) {
+            Image img = LoadImage(framePaths[nextFrame]);
+            if (!img.data) continue;
+            if (buffer[oldIndex].id != 0) UnloadTexture(buffer[oldIndex]);
+            buffer[oldIndex] = LoadTextureFromImage(img);
+            UnloadImage(img);
+        }
+
+        // Para áudio no último frame
+        if (vp->currentFrame >= vp->frameCount && vp->audioPlayed) {
+            StopMusicStream(vp->music);
+        }
     }
 }
 
 void VideoPlayer_Draw(VideoPlayer *vp, int x, int y, int width, int height) {
     if (vp->currentFrame >= vp->frameCount) return;
 
-    Texture2D tex = vp->frames[vp->currentFrame];
+    int idx = vp->currentFrame % BUFFER_SIZE;
+    Texture2D tex = buffer[idx];
 
-    // Calcula escala para manter aspecto
     float scaleX = (float)width / tex.width;
     float scaleY = (float)height / tex.height;
     float scale = (scaleX < scaleY) ? scaleX : scaleY;
@@ -84,23 +98,24 @@ void VideoPlayer_Draw(VideoPlayer *vp, int x, int y, int width, int height) {
     int offsetY = (height - drawHeight) / 2;
 
     DrawTexturePro(tex,
-                   (Rectangle){0, 0, tex.width, tex.height},
-                   (Rectangle){offsetX, offsetY, drawWidth, drawHeight},
-                   (Vector2){0, 0}, 0.0f, WHITE);
+                   (Rectangle){0,0,tex.width,tex.height},
+                   (Rectangle){offsetX,offsetY,drawWidth,drawHeight},
+                   (Vector2){0,0}, 0.0f, WHITE);
 }
 
 void VideoPlayer_Unload(VideoPlayer *vp) {
-    for (int i = 0; i < vp->frameCount; i++) {
-        UnloadTexture(vp->frames[i]);
+    for (int i = 0; i < BUFFER_SIZE; i++) {
+        if (buffer[i].id != 0) UnloadTexture(buffer[i]);
     }
-    free(vp->frames);
 
-    if (vp->audioPlayed) {
-        StopMusicStream(vp->music);
-    }
+    for (int i = 0; i < vp->frameCount; i++) free(framePaths[i]);
+    free(framePaths);
+
+    if (vp->audioPlayed) StopMusicStream(vp->music);
     UnloadMusicStream(vp->music);
 }
 
 bool VideoPlayer_IsFinished(VideoPlayer *vp) {
-    return (vp->currentFrame >= vp->frameCount - 1);
+    // Termina quando último frame foi mostrado
+    return vp->currentFrame >= vp->frameCount;
 }
