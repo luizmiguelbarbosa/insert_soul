@@ -35,7 +35,7 @@ void Menu_Init(int width, int height) {
     screenHeight = height;
 
     // Background
-    bg = LoadTexture("assets/bg.png");
+    bg = LoadTexture("assets/menu/background/bg.jpg");
 
     // Personagem
     char path[64];
