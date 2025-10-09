@@ -13,8 +13,8 @@ int main(void) {
 
     VideoPlayer vp;
     if (!Intro_Play(&vp, width, height,
-                    "assets/frames/intro/frame_%04d.png",
-                    981, 60.0f, "assets/audio/intro_audio.wav", 3.0f)) {
+                    "assets/frames/intro/frame_%04d.jpg",
+                    793, 60.0f, "assets/audio/intro_audio.wav", 3.0f)) {
         System_Close();
         return -1;
     }
