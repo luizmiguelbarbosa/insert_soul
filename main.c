@@ -5,6 +5,7 @@
 #include "menu.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 int main(void) {
     int width, height;
@@ -23,12 +24,17 @@ int main(void) {
     bool exitProgram = false;
 
     while (!WindowShouldClose() && !exitProgram) {
-        MenuAction action = Menu_UpdateDraw();
+        float deltaTime = GetFrameTime(); // necessário para animação
+        MenuAction action = Menu_UpdateDraw(deltaTime);
 
         switch (action) {
-            case MENU_ACTION_START:   printf("Iniciar jogo clicado!\n"); break;
-            case MENU_ACTION_OPTIONS: printf("Opções clicado!\n"); break;
-            case MENU_ACTION_EXIT:    exitProgram = true; break;
+            case MENU_ACTION_START:        printf("New Game clicado!\n"); break;
+            case MENU_ACTION_CONTINUE:     printf("Continue clicado!\n"); break;
+            case MENU_ACTION_LOADSETTINGS: printf("Load Settings clicado!\n"); break;
+            case MENU_ACTION_CREDITS:      printf("Credits clicado!\n"); break;
+            case MENU_ACTION_LANGUAGE:     printf("Language clicado!\n"); break;
+            case MENU_ACTION_VOICE:        printf("Voice clicado!\n"); break;
+            case MENU_ACTION_EXIT:          exitProgram = true; break;
             default: break;
         }
     }
