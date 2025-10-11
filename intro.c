@@ -29,7 +29,7 @@ bool Intro_Play(VideoPlayer *vp, int width, int height, const char *framesPath, 
     int centerY = height - 80;
 
     // Aumenta o tempo de carregamento
-    float targetTime = loadingTime + 3.0f; // por exemplo, 3s a mais
+    float targetTime = loadingTime + 1.4f; // por exemplo, 3s a mais
 
     while (!WindowShouldClose() && timer < targetTime) {
         float delta = GetFrameTime();
